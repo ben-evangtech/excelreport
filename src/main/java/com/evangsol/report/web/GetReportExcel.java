@@ -14,6 +14,8 @@ import com.evangsol.report.util.TestFileUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -29,6 +31,9 @@ import java.util.Map;
 public class GetReportExcel {
 
 
+
+    Logger logger = LoggerFactory.getLogger(GetReportExcel.class);
+
     /**
      * 文件下载（失败了会返回一个有部分数据的Excel）
      * <p>
@@ -39,7 +44,8 @@ public class GetReportExcel {
      * 3. 直接写，这里注意，finish的时候会自动关闭OutputStream,当然你外面再关闭流问题不大
      */
     @GetMapping("getMountExcel")
-    public void download(HttpServletResponse response) throws IOException {
+    public void getMountExcel(HttpServletResponse response) throws IOException {
+        logger.debug("getMountExcel: start");
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
         // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
@@ -75,9 +81,11 @@ public class GetReportExcel {
 //        }
 
 
-        String fileName2 = TestFileUtil.getPath() + fileName+".xlsx";
+        String fileName2 = "../"+fileName+".xlsx";
         EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
         File file = new File(fileName2);
+
+        logger.debug("getMountExcel: EasyExcel end");
 
         // 设置响应头
         response.setContentType("application/octet-stream");
@@ -98,16 +106,9 @@ public class GetReportExcel {
         } catch (IOException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
         }
 
-        // 下载文件完成后，重定向到成功页面
-        response.sendRedirect("/success");
-    }
-
-    @GetMapping("/success")
-    public String success() {
-        return "success";
+        logger.debug("getMountExcel: success");
     }
 
 
