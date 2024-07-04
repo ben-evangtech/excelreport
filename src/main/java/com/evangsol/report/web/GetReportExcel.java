@@ -78,13 +78,13 @@ public class GetReportExcel {
 //        }
 
 
-        String fileName2 = TestFileUtil.getPath() + "販売費及び一般管理費.xlsx";
+        String fileName2 = TestFileUtil.getPath() + fileName+".xlsx";
         EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
         File file = new File(fileName2);
 
         // 设置响应头
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
         response.setContentLength((int) file.length());
 
         // 将文件写入响应输出流
