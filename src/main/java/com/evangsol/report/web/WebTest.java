@@ -44,11 +44,10 @@ public class WebTest {
      */
     @GetMapping("download")
     public void download(HttpServletResponse response) throws IOException {
-        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
-        String fileName = URLEncoder.encode("测试", "UTF-8").replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("TEST", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
 
 //        EasyExcel.write(response.getOutputStream(), FillData.class).sheet("模板").doWrite(data());
@@ -56,10 +55,10 @@ public class WebTest {
 //        String templateFileName =
 //                TestFileUtil.getPath() + "templates" + File.separator + "simple.xlsx";
         String templateFileName =
-                TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
+                TestFileUtil.getPath() + "templates" + File.separator + "mount_template_en.xlsx";
         MountExcelData data = new MountExcelData();
-        data.setDateFrom("2024年3月21日");
-        data.setDateTo("2025年3月20日");
+        data.setDateFrom("2024/03/21");
+        data.setDateTo("2025/03/20");
         data.setMoment1(1231231231231L);
         data.setMoment11(1150000L);
         data.setMoment25(197000L);
