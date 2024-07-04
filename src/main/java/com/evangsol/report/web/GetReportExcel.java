@@ -51,18 +51,20 @@ public class GetReportExcel {
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
         // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
-        String fileName = URLEncoder.encode("mount", "UTF-8").replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("販売費及び一般管理費", "UTF-8").replaceAll("\\+", "%20");
         logger.debug("getMountExcel: fileName"+fileName);
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
         logger.debug("getMountExcel: response.setHeader");
 
-        String templateFileName =
-                TestFileUtil.getPath() + "templates" + File.separator + "mount_template_en.xlsx";
+
+        String templateFileName = ClassLoader.getSystemResource("templates/mount_template.xlsx").getPath();
+//        String templateFileName =
+//                TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
         logger.debug("getMountExcel: templateFileName"+templateFileName);
 
         MountExcelData data = new MountExcelData();
-        data.setDateFrom("2024/03/21");
-        data.setDateTo("2025/03/20");
+        data.setDateFrom("2024年3月21日");
+        data.setDateTo("2025年3月20日");
         data.setMoment1(1231231231231L);
         data.setMoment11(1150000L);
         data.setMoment25(197000L);
