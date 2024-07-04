@@ -87,7 +87,7 @@ public class GetReportExcel {
 //        }
 
 
-        String fileName2 = "../"+fileName+".xlsx";
+        String fileName2 = TestFileUtil.getPath()+fileName+".xlsx";
 
         logger.debug("getMountExcel: fileName2:"+fileName2);
         EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
