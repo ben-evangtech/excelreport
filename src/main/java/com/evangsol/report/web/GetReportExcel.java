@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -44,7 +45,8 @@ public class GetReportExcel {
      * 3. 直接写，这里注意，finish的时候会自动关闭OutputStream,当然你外面再关闭流问题不大
      */
     @GetMapping("getMountExcel")
-    public void getMountExcel(HttpServletResponse response) throws IOException {
+    @ResponseBody
+    public String getMountExcel(HttpServletResponse response) throws IOException {
         logger.debug("getMountExcel: start");
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
@@ -105,13 +107,21 @@ public class GetReportExcel {
             bos.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            logger.debug("getMountExcel: error:"+e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return "getMountExcel: error:"+e.getMessage();
         }
 
         logger.debug("getMountExcel: success");
+        return "getMountExcel: success";
     }
 
 
+    @GetMapping("testApi")
+    @ResponseBody
+    public String getMountExcel()  {
+        return "success";
+    }
 
 
 }
