@@ -7,7 +7,6 @@ import com.alibaba.excel.util.MapUtils;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.fastjson2.JSON;
-import com.evangsol.report.fill.FillData;
 import com.evangsol.report.fill.MountExcelData;
 import com.evangsol.report.util.CustomStyleHandler;
 import com.evangsol.report.util.TestFileUtil;
@@ -59,9 +58,8 @@ public class GetReportExcel {
             logger.debug("getMountExcel: response.setHeader");
 
 
-            String templateFileName = ClassLoader.getSystemResource("templates/mount_template.xlsx").getPath();
-//        String templateFileName =
-//                TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
+            String templateFileName =
+                    TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
             logger.debug("getMountExcel: templateFileName"+templateFileName);
 
             MountExcelData data = new MountExcelData();
