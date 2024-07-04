@@ -52,10 +52,13 @@ public class GetReportExcel {
         response.setCharacterEncoding("utf-8");
         // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
         String fileName = URLEncoder.encode("販売費及び一般管理費", "UTF-8").replaceAll("\\+", "%20");
+        logger.debug("getMountExcel: fileName"+fileName);
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+        logger.debug("getMountExcel: response.setHeader");
 
         String templateFileName =
                 TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
+        logger.debug("getMountExcel: templateFileName"+templateFileName);
 
         MountExcelData data = new MountExcelData();
         data.setDateFrom("2024年3月21日");
@@ -64,13 +67,14 @@ public class GetReportExcel {
         data.setMoment11(1150000L);
         data.setMoment25(197000L);
         data.setMoment50(60000L);
+        logger.debug("getMountExcel: MountExcelData ready");
 
 //        EasyExcel.write(response.getOutputStream(), MountExcelData.class)
 //                .withTemplate(templateFileName)
 //                .registerWriteHandler(new CustomStyleHandler())
 //                .sheet().doFill(data);
 
-        FillConfig fillConfig = FillConfig.builder().autoStyle(Boolean.TRUE).build();
+//        FillConfig fillConfig = FillConfig.builder().autoStyle(Boolean.TRUE).build();
 //        EasyExcel.write(response.getOutputStream(), MountExcelData.class).withTemplate(templateFileName).sheet().doFill(data);
 
 //        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), MountExcelData.class)
@@ -84,20 +88,25 @@ public class GetReportExcel {
 
 
         String fileName2 = "../"+fileName+".xlsx";
-        EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
-        File file = new File(fileName2);
 
+        logger.debug("getMountExcel: fileName2:"+fileName2);
+        EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
         logger.debug("getMountExcel: EasyExcel end");
+        File file = new File(fileName2);
+        logger.debug("getMountExcel: file:"+file.getName());
+
 
         // 设置响应头
         response.setContentType("application/octet-stream");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
         response.setContentLength((int) file.length());
+        logger.debug("getMountExcel: response.setContentLength:"+((int) file.length()));
 
         // 将文件写入响应输出流
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
              BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
 
+            logger.debug("getMountExcel: read start");
             byte[] buffer = new byte[1024];
             int bytesRead;
 
@@ -105,6 +114,7 @@ public class GetReportExcel {
                 bos.write(buffer, 0, bytesRead);
             }
             bos.flush();
+            logger.debug("getMountExcel: read end");
         } catch (IOException e) {
             e.printStackTrace();
             logger.debug("getMountExcel: error:"+e.getMessage());
