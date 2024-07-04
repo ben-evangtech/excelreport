@@ -48,28 +48,30 @@ public class GetReportExcel {
     @ResponseBody
     public String getMountExcel(HttpServletResponse response) throws IOException {
         logger.debug("getMountExcel: start");
-        response.setContentType("application/vnd.ms-excel");
-        response.setCharacterEncoding("utf-8");
-        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
-        String fileName = URLEncoder.encode("販売費及び一般管理費", "UTF-8").replaceAll("\\+", "%20");
-        logger.debug("getMountExcel: fileName"+fileName);
-        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
-        logger.debug("getMountExcel: response.setHeader");
+
+        try {
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+            String fileName = URLEncoder.encode("販売費及び一般管理費", "UTF-8").replaceAll("\\+", "%20");
+            logger.debug("getMountExcel: fileName"+fileName);
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+            logger.debug("getMountExcel: response.setHeader");
 
 
-        String templateFileName = ClassLoader.getSystemResource("templates/mount_template.xlsx").getPath();
+            String templateFileName = ClassLoader.getSystemResource("templates/mount_template.xlsx").getPath();
 //        String templateFileName =
 //                TestFileUtil.getPath() + "templates" + File.separator + "販売費及び一般管理費_template.xlsx";
-        logger.debug("getMountExcel: templateFileName"+templateFileName);
+            logger.debug("getMountExcel: templateFileName"+templateFileName);
 
-        MountExcelData data = new MountExcelData();
-        data.setDateFrom("2024年3月21日");
-        data.setDateTo("2025年3月20日");
-        data.setMoment1(1231231231231L);
-        data.setMoment11(1150000L);
-        data.setMoment25(197000L);
-        data.setMoment50(60000L);
-        logger.debug("getMountExcel: MountExcelData ready");
+            MountExcelData data = new MountExcelData();
+            data.setDateFrom("2024年3月21日");
+            data.setDateTo("2025年3月20日");
+            data.setMoment1(1231231231231L);
+            data.setMoment11(1150000L);
+            data.setMoment25(197000L);
+            data.setMoment50(60000L);
+            logger.debug("getMountExcel: MountExcelData ready");
 
 //        EasyExcel.write(response.getOutputStream(), MountExcelData.class)
 //                .withTemplate(templateFileName)
@@ -89,43 +91,46 @@ public class GetReportExcel {
 //        }
 
 
-        String fileName2 = TestFileUtil.getPath()+fileName+".xlsx";
+            String fileName2 = TestFileUtil.getPath()+fileName+".xlsx";
 
-        logger.debug("getMountExcel: fileName2:"+fileName2);
-        EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
-        logger.debug("getMountExcel: EasyExcel end");
-        File file = new File(fileName2);
-        logger.debug("getMountExcel: file:"+file.getName());
+            logger.debug("getMountExcel: fileName2:"+fileName2);
+            EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
+            logger.debug("getMountExcel: EasyExcel end");
+            File file = new File(fileName2);
+            logger.debug("getMountExcel: file:"+file.getName());
 
 
-        // 设置响应头
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
-        response.setContentLength((int) file.length());
-        logger.debug("getMountExcel: response.setContentLength:"+((int) file.length()));
+            // 设置响应头
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+            response.setContentLength((int) file.length());
+            logger.debug("getMountExcel: response.setContentLength:"+((int) file.length()));
 
-        // 将文件写入响应输出流
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
+            // 将文件写入响应输出流
+            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
 
-            logger.debug("getMountExcel: read start");
-            byte[] buffer = new byte[1024];
-            int bytesRead;
+                logger.debug("getMountExcel: read start");
+                byte[] buffer = new byte[1024];
+                int bytesRead;
 
-            while ((bytesRead = bis.read(buffer)) != -1) {
-                bos.write(buffer, 0, bytesRead);
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+                bos.flush();
+                logger.debug("getMountExcel: read end");
+            } catch (IOException e) {
+                throw e;
             }
-            bos.flush();
-            logger.debug("getMountExcel: read end");
-        } catch (IOException e) {
+
+            logger.debug("getMountExcel: success");
+            return "getMountExcel: success";
+        } catch (Exception e) {
             e.printStackTrace();
             logger.debug("getMountExcel: error:"+e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return "getMountExcel: error:"+e.getMessage();
         }
-
-        logger.debug("getMountExcel: success");
-        return "getMountExcel: success";
     }
 
 
