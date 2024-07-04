@@ -15,10 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
@@ -88,16 +85,29 @@ public class GetReportExcel {
         response.setContentLength((int) file.length());
 
         // 将文件写入响应输出流
-        try (FileInputStream fis = new FileInputStream(file);
-             OutputStream os = response.getOutputStream()) {
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
 
             byte[] buffer = new byte[1024];
             int bytesRead;
 
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
             }
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
         }
+
+        // 下载文件完成后，重定向到成功页面
+        response.sendRedirect("/success");
+    }
+
+    @GetMapping("/success")
+    public String success() {
+        return "success";
     }
 
 
