@@ -171,13 +171,6 @@ public class GetReportExcel {
             javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
             om.registerModule(javaTimeModule);
-//            MountExcelData data = new MountExcelData();
-//            data.setDateFrom("2024年3月21日");
-//            data.setDateTo("2025年3月20日");
-//            data.setMoment1(1231231231231L);
-//            data.setMoment11(1150000L);
-//            data.setMoment25(197000L);
-//            data.setMoment50(60000L);
             logger.debug("postMountExcel: MountExcelData ready:"+om.writeValueAsString(data));
 
             response.setCharacterEncoding("utf-8");
@@ -195,36 +188,36 @@ public class GetReportExcel {
             logger.debug("postMountExcel: fileName2:"+fileName2);
             EasyExcel.write(fileName2).withTemplate(templateFileName).sheet().doFill(data);
             logger.debug("postMountExcel: EasyExcel end");
-            File file = new File(fileName2);
-            logger.debug("postMountExcel: file:"+file.getName());
+//            File file = new File(fileName2);
+//            logger.debug("postMountExcel: file:"+file.getName());
 
 
             // 设置响应头
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
-            logger.debug("postMountExcel: response.setHeader");
-            response.setContentLength((int) file.length());
-            logger.debug("postMountExcel: response.setContentLength:"+((int) file.length()));
-
-            // 将文件写入响应输出流
-            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
-
-                logger.debug("postMountExcel: read start");
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-
-                while ((bytesRead = bis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, bytesRead);
-                }
-                bos.flush();
-                logger.debug("postMountExcel: read end");
-            } catch (IOException e) {
-                throw e;
-            }
+//            response.setContentType("application/octet-stream");
+//            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+//            logger.debug("postMountExcel: response.setHeader");
+//            response.setContentLength((int) file.length());
+//            logger.debug("postMountExcel: response.setContentLength:"+((int) file.length()));
+//
+//            // 将文件写入响应输出流
+//            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+//                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
+//
+//                logger.debug("postMountExcel: read start");
+//                byte[] buffer = new byte[1024];
+//                int bytesRead;
+//
+//                while ((bytesRead = bis.read(buffer)) != -1) {
+//                    bos.write(buffer, 0, bytesRead);
+//                }
+//                bos.flush();
+//                logger.debug("postMountExcel: read end");
+//            } catch (IOException e) {
+//                throw e;
+//            }
 
             logger.debug("postMountExcel: success");
-            return "postMountExcel: success";
+            return fileName+".xlsx";
         } catch (Exception e) {
             e.printStackTrace();
             logger.debug("postMountExcel: error:"+e.getMessage());
@@ -233,6 +226,64 @@ public class GetReportExcel {
         }
     }
 
+
+    /**
+     * 文件下载（失败了会返回一个有部分数据的Excel）
+     * <p>
+     * 1. 创建excel对应的实体对象
+     * <p>
+     * 2. 设置返回的 参数
+     * <p>
+     * 3. 直接写，这里注意，finish的时候会自动关闭OutputStream,当然你外面再关闭流问题不大
+     */
+    @GetMapping("downloadMountExcel")
+    public void downloadMountExcel(HttpServletResponse response, String fileNameInput) throws IOException {
+        logger.debug("downloadMountExcel: start");
+
+        try {
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode(fileNameInput, "UTF-8").replaceAll("\\+", "%20");
+            logger.debug("downloadMountExcel: fileName"+fileName);
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            logger.debug("downloadMountExcel: response.setHeader");
+
+
+            String fileNameDownload = TestFileUtil.getPath()+fileName;
+
+            logger.debug("downloadMountExcel: fileNameDownload:"+fileNameDownload);
+            File file = new File(fileNameDownload);
+            logger.debug("downloadMountExcel: file:"+file.getName());
+
+
+            // 设置响应头
+            response.setContentType("application/octet-stream");
+            response.setContentLength((int) file.length());
+            logger.debug("downloadMountExcel: response.setContentLength:"+((int) file.length()));
+
+            // 将文件写入响应输出流
+            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+                 BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
+
+                logger.debug("downloadMountExcel: read start");
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+                bos.flush();
+                logger.debug("downloadMountExcel: read end");
+            } catch (IOException e) {
+                throw e;
+            }
+
+            logger.debug("downloadMountExcel: success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("downloadMountExcel: error:"+e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("testApi")
     @ResponseBody
